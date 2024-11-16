@@ -1,7 +1,6 @@
-import Loginpage from "@/src/Loginpage"
 
 export default function Page() {
   return <div>
-    <Loginpage/>
+    <h1>Hello World</h1>
   </div>
 }
