@@ -61,14 +61,14 @@ export default function SignUp() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100 px-4 sm:px-6 lg:px-8">
-      <div className="bg-white shadow-lg rounded-lg p-6 sm:p-8 w-full max-w-sm sm:max-w-md">
-        <h1 className="text-xl sm:text-2xl font-bold text-center text-gray-800 mb-6">
+    <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4 sm:px-6 lg:px-8">
+      <div className="bg-white shadow-lg rounded-lg p-6 sm:p-8 w-full max-w-sm sm:max-w-md border border-gray-200">
+        <h1 className="text-xl sm:text-2xl font-bold text-center text-gray-900 mb-6">
           Create Your Account
         </h1>
         <form onSubmit={handleSignUp} className="space-y-4 sm:space-y-6">
           {errors.api && (
-            <p className="text-red-500 text-sm text-center">{errors.api}</p>
+            <p className="text-gray-700 text-sm text-center">{errors.api}</p>
           )}
           {/* Name Input */}
           <div>
@@ -80,14 +80,11 @@ export default function SignUp() {
               placeholder="Enter your name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className={`w-full px-3 sm:px-4 py-2 border ${
-                errors.name ? "border-red-500" : "border-gray-300"
-              } rounded-lg shadow-sm focus:outline-none focus:ring-2 ${
-                errors.name ? "focus:ring-red-500" : "focus:ring-blue-500"
-              }`}
+              className={`w-full px-3 sm:px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 
+                ${errors.name ? 'border-gray-900 ring-gray-900' : 'border-gray-200 focus:ring-gray-500'}`}
             />
             {errors.name && (
-              <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+              <p className="text-gray-700 text-sm mt-1">{errors.name}</p>
             )}
           </div>
           {/* Email Input */}
@@ -100,14 +97,11 @@ export default function SignUp() {
               placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className={`w-full px-3 sm:px-4 py-2 border ${
-                errors.email ? "border-red-500" : "border-gray-300"
-              } rounded-lg shadow-sm focus:outline-none focus:ring-2 ${
-                errors.email ? "focus:ring-red-500" : "focus:ring-blue-500"
-              }`}
+              className={`w-full px-3 sm:px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 
+                ${errors.email ? 'border-gray-900 ring-gray-900' : 'border-gray-200 focus:ring-gray-500'}`}
             />
             {errors.email && (
-              <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+              <p className="text-gray-700 text-sm mt-1">{errors.email}</p>
             )}
           </div>
           {/* Phone Number Input */}
@@ -120,14 +114,11 @@ export default function SignUp() {
               placeholder="Enter your phone number"
               value={phoneNumber}
               onChange={(e) => setPhoneNumber(e.target.value)}
-              className={`w-full px-3 sm:px-4 py-2 border ${
-                errors.phoneNumber ? "border-red-500" : "border-gray-300"
-              } rounded-lg shadow-sm focus:outline-none focus:ring-2 ${
-                errors.phoneNumber ? "focus:ring-red-500" : "focus:ring-blue-500"
-              }`}
+              className={`w-full px-3 sm:px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 
+                ${errors.phoneNumber ? 'border-gray-900 ring-gray-900' : 'border-gray-200 focus:ring-gray-500'}`}
             />
             {errors.phoneNumber && (
-              <p className="text-red-500 text-sm mt-1">{errors.phoneNumber}</p>
+              <p className="text-gray-700 text-sm mt-1">{errors.phoneNumber}</p>
             )}
           </div>
           {/* Password Input */}
@@ -140,14 +131,11 @@ export default function SignUp() {
               placeholder="Create a password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className={`w-full px-3 sm:px-4 py-2 border ${
-                errors.password ? "border-red-500" : "border-gray-300"
-              } rounded-lg shadow-sm focus:outline-none focus:ring-2 ${
-                errors.password ? "focus:ring-red-500" : "focus:ring-blue-500"
-              }`}
+              className={`w-full px-3 sm:px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 
+                ${errors.password ? 'border-gray-900 ring-gray-900' : 'border-gray-200 focus:ring-gray-500'}`}
             />
             {errors.password && (
-              <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+              <p className="text-gray-700 text-sm mt-1">{errors.password}</p>
             )}
           </div>
           {/* Confirm Password Input */}
@@ -160,16 +148,11 @@ export default function SignUp() {
               placeholder="Confirm your password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className={`w-full px-3 sm:px-4 py-2 border ${
-                errors.confirmPassword ? "border-red-500" : "border-gray-300"
-              } rounded-lg shadow-sm focus:outline-none focus:ring-2 ${
-                errors.confirmPassword
-                  ? "focus:ring-red-500"
-                  : "focus:ring-blue-500"
-              }`}
+              className={`w-full px-3 sm:px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 
+                ${errors.confirmPassword ? 'border-gray-900 ring-gray-900' : 'border-gray-200 focus:ring-gray-500'}`}
             />
             {errors.confirmPassword && (
-              <p className="text-red-500 text-sm mt-1">
+              <p className="text-gray-700 text-sm mt-1">
                 {errors.confirmPassword}
               </p>
             )}
@@ -181,7 +164,7 @@ export default function SignUp() {
             className={`w-full py-2 px-4 rounded-lg text-white ${
               isSubmitting
                 ? "bg-gray-400 cursor-not-allowed"
-                : "bg-blue-500 hover:bg-blue-600 focus:ring-2 focus:ring-blue-400"
+                : "bg-gray-900 hover:bg-gray-800 focus:ring-2 focus:ring-gray-500"
             } focus:outline-none sm:py-3 sm:text-lg`}
           >
             {isSubmitting ? "Signing Up..." : "Sign Up"}
@@ -189,7 +172,7 @@ export default function SignUp() {
         </form>
         <div className="mt-4 text-center text-sm text-gray-600">
           Already have an account?{" "}
-          <a href="/login" className="text-blue-500 hover:underline">
+          <a href="/login" className="text-gray-900 hover:text-gray-700 hover:underline">
             Log in
           </a>
         </div>
