@@ -55,40 +55,40 @@ export default function Home() {
               </div>
             </div>
           </section>
-          <section className="w-full py-12 md:py-24 lg:py-32 bg-white dark:bg-gray-900">
+          <section className="w-full py-12 md:py-24 lg:py-32 bg-white">
           <div className="container px-4 md:px-6">
-            <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl text-center mb-4 text-gray-800 dark:text-white">Our Features</h2>
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl text-center mb-4 text-gray-900">Our Features</h2>
             <div className="grid gap-10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 items-center justify-center">
-              <div className="flex flex-col items-center space-y-2 border border-gray-200 dark:border-gray-700 p-4 rounded-lg bg-white dark:bg-gray-800">
-                <svg className="h-6 w-6 text-gray-800 dark:text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <div className="flex flex-col items-center space-y-2 border border-gray-200 p-4 rounded-lg bg-white">
+                <svg className="h-6 w-6 text-gray-900" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   <circle cx="12" cy="10" r="3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-                <h3 className="text-xl font-bold text-gray-800 dark:text-white">Find Stations</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 text-center">Locate charging stations near you with ease</p>
+                <h3 className="text-xl font-bold text-gray-900">Find Stations</h3>
+                <p className="text-sm text-gray-600 text-center">Locate charging stations near you with ease</p>
               </div>
-              <div className="flex flex-col items-center space-y-2 border border-gray-200 dark:border-gray-700 p-4 rounded-lg bg-white dark:bg-gray-800">
-                <svg className="h-6 w-6 text-gray-800 dark:text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <div className="flex flex-col items-center space-y-2 border border-gray-200 p-4 rounded-lg bg-white">
+                <svg className="h-6 w-6 text-gray-900" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   <path d="M12 6v6l4 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-                <h3 className="text-xl font-bold text-gray-800 dark:text-white">Real-time Availability</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 text-center">Check station availability in real-time</p>
+                <h3 className="text-xl font-bold text-gray-900">Real-time Availability</h3>
+                <p className="text-sm text-gray-600 text-center">Check station availability in real-time</p>
               </div>
-              <div className="flex flex-col items-center space-y-2 border border-gray-200 dark:border-gray-700 p-4 rounded-lg bg-white dark:bg-gray-800">
-                <svg className="h-6 w-6 text-gray-800 dark:text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <div className="flex flex-col items-center space-y-2 border border-gray-200 p-4 rounded-lg bg-white">
+                <svg className="h-6 w-6 text-gray-900" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   <path d="M2 10h20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-                <h3 className="text-xl font-bold text-gray-800 dark:text-white">Easy Payment</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 text-center">Pay for your charging session with a tap</p>
+                <h3 className="text-xl font-bold text-gray-900">Easy Payment</h3>
+                <p className="text-sm text-gray-600 text-center">Pay for your charging session with a tap</p>
               </div>
-              <div className="flex flex-col items-center space-y-2 border border-gray-200 dark:border-gray-700 p-4 rounded-lg bg-white dark:bg-gray-800">
-                <svg className="h-6 w-6 text-gray-800 dark:text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <div className="flex flex-col items-center space-y-2 border border-gray-200 p-4 rounded-lg bg-white">
+                <svg className="h-6 w-6 text-gray-900" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-                <h3 className="text-xl font-bold text-gray-800 dark:text-white">Fast Charging</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 text-center">Access high-speed charging options</p>
+                <h3 className="text-xl font-bold text-gray-900">Fast Charging</h3>
+                <p className="text-sm text-gray-600 text-center">Access high-speed charging options</p>
               </div>
             </div>
           </div>
