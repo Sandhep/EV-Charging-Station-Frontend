@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { fetchUserProfile } from "../api"; // Import the API function to fetch user profile
-import Cookies from "js-cookie";
+import Cookies from "js-cookie"; // Import js-cookie for cookie handling
 import { useRouter } from "next/navigation";
 
 export default function Dashboard() {
@@ -35,6 +35,12 @@ export default function Dashboard() {
     fetchProfile(); // Call the function to fetch user data
   }, [router]); // Re-run the effect when router changes
 
+  // Logout functionality using js-cookie
+  const handleLogout = () => {
+    Cookies.remove("auth_token"); // Remove the auth token cookie
+    router.push("/login"); // Redirect the user to the login page
+  };
+
   // Show loading state while data is being fetched
   if (loading) {
     return <div>Loading...</div>;
@@ -45,7 +51,7 @@ export default function Dashboard() {
     return <div>{error}</div>;
   }
 
-  // Render the user profile data if available
+  // Render the user profile data and logout button
   return (
     <div>
       <h1>Welcome to the Dashboard!</h1>
@@ -55,6 +61,13 @@ export default function Dashboard() {
           <p><strong>Name:</strong> {userData.Name}</p>
           <p><strong>Email:</strong> {userData.Email}</p>
           {/* Add more user data fields as needed */}
+          {/* Logout button */}
+          <button
+            onClick={handleLogout}
+            className="mt-4 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+          >
+            Logout
+          </button>
         </div>
       ) : (
         <p>No user data available.</p>
