@@ -19,8 +19,8 @@ export default function Navbar({ hideAuth = false }) {
           <Link className="text-sm font-medium text-gray-700 hover:underline underline-offset-4" href="/home#features">
             Features
           </Link>
-          <Link className="text-sm font-medium text-gray-700 hover:underline underline-offset-4" href="#">
-            Pricing
+          <Link className="text-sm font-medium text-gray-700 hover:underline underline-offset-4" href="/stationpage">
+            Find Stations
           </Link>
           <Link className="text-sm font-medium text-gray-700 hover:underline underline-offset-4" href="#">
             About
