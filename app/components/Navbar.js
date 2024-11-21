@@ -26,7 +26,7 @@ export default function Navbar({ hideAuth = false }) {
             About
           </Link>
           <Link className="text-sm font-medium text-gray-700 hover:underline underline-offset-4" href="#">
-            Contact
+            Careers
           </Link>
         </div>
       </div>
@@ -99,7 +99,7 @@ export default function Navbar({ hideAuth = false }) {
               href="#"
               onClick={() => setIsMenuOpen(false)}
             >
-              Contact
+              Careers
             </Link>
             {!hideAuth && (
               <div className="flex flex-col space-y-2 pt-2 border-t border-gray-200 mt-2">
