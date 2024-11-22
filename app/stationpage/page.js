@@ -1,6 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import Navbar from '../components/Navbar';
+import { useRouter } from 'next/navigation';
 
 const stationData = [
   {
@@ -9,7 +10,7 @@ const stationData = [
     type: "AC",
     address: "123 Main Street, Downtown",
     availability: "Available",
-    power: "7.4 kW"
+    power: "7.4"
   },
   {
     id: 2,
@@ -17,7 +18,7 @@ const stationData = [
     type: "DC",
     address: "456 Park Avenue, Uptown",
     availability: "Busy",
-    power: "50 kW"
+    power: "50"
   },
   {
     id: 3,
@@ -25,7 +26,7 @@ const stationData = [
     type: "AC",
     address: "789 Market Street",
     availability: "Available",
-    power: "11 kW"
+    power: "11"
   },
   {
     id: 4,
@@ -33,7 +34,7 @@ const stationData = [
     type: "DC",
     address: "Highway 101, Mile Marker 45",
     availability: "Available",
-    power: "150 kW"
+    power: "150"
   },
   {
     id: 5,
@@ -41,7 +42,7 @@ const stationData = [
     type: "AC",
     address: "25 Downtown Plaza",
     availability: "Busy",
-    power: "22 kW"
+    power: "22"
   },
   {
     id: 6,
@@ -49,7 +50,7 @@ const stationData = [
     type: "DC",
     address: "100 Innovation Drive",
     availability: "Available",
-    power: "100 kW"
+    power: "100"
   },
   {
     id: 7,
@@ -57,7 +58,7 @@ const stationData = [
     type: "AC",
     address: "555 Apartment Boulevard",
     availability: "Available",
-    power: "7.4 kW"
+    power: "7.4"
   },
   {
     id: 8,
@@ -65,7 +66,7 @@ const stationData = [
     type: "DC",
     address: "200 Retail Row",
     availability: "Busy",
-    power: "50 kW"
+    power: "50"
   },
   {
     id: 9,
@@ -73,7 +74,7 @@ const stationData = [
     type: "AC",
     address: "888 Luxury Lane",
     availability: "Available",
-    power: "22 kW"
+    power: "22"
   },
   {
     id: 10,
@@ -81,13 +82,23 @@ const stationData = [
     type: "DC",
     address: "1 Airport Terminal Road",
     availability: "Available",
-    power: "150 kW"
+    power: "150"
   }
 ];
 
 const StationCard = ({ station }) => {
+  const router = useRouter();
+
+  const handleBooking = () => {
+    router.push(`/booking?stationId=${station.id}&stationName=${encodeURIComponent(station.name)}&power=${encodeURIComponent(station.power)}&type=${station.type}`);
+  };
+
+  const handleConnect = () => {
+    router.push(`/connect?stationId=${station.id}&stationName=${encodeURIComponent(station.name)}&power=${encodeURIComponent(station.power)}&type=${station.type}`);
+  };
+
   return (
-    <div className="flex flex-col p-4 border border-gray-200 rounded-lg bg-white hover:shadow-lg transition-all duration-200 hover:-translate-y-1">
+    <div className="flex flex-col p-4 border border-gray-200 rounded-lg bg-white hover:shadow-lg transition-all duration-200">
       <h3 className="text-xl font-bold text-gray-900 mb-2">
         {station.name}
       </h3>
@@ -109,13 +120,32 @@ const StationCard = ({ station }) => {
         <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
         </svg>
-        Power Output: {station.power}
+        Power Output: {station.power} kW
       </div>
-      <div className={`flex items-center ${
+      <div className={`flex items-center mb-4 ${
         station.availability === 'Available' ? 'text-green-600' : 'text-red-600'
       }`}>
         <div className="h-2 w-2 rounded-full mr-2 bg-current"></div>
         Status: {station.availability}
+      </div>
+
+      <div className="mt-auto grid grid-cols-2 gap-3">
+        <button
+          onClick={handleBooking}
+          className="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors duration-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2"
+        >
+          Book
+        </button>
+        <button
+          onClick={handleConnect}
+          className={`px-4 py-2 rounded-lg transition-colors duration-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 
+            ${station.availability === 'Available' 
+              ? 'bg-white border-2 border-gray-900 text-gray-900 hover:bg-gray-100' 
+              : 'bg-gray-100 text-gray-400 cursor-not-allowed border-2 border-gray-200'}`}
+          disabled={station.availability !== 'Available'}
+        >
+          Connect
+        </button>
       </div>
     </div>
   );
