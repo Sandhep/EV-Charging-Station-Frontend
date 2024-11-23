@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import Image from 'next/image'
+import Footer from '../components/Footer';
 import Link from 'next/link'
 import Navbar from '../components/Navbar';
 
@@ -106,9 +107,7 @@ export default function Home() {
           </div>
         </section>
       </main>
-      <footer className="py-6 w-full flex justify-center border-t border-gray-200">
-        <p className="text-sm text-gray-600">© 2024 EV Charge. All rights reserved.</p>
-      </footer>
+      <Footer />
     </div>
   );
 }

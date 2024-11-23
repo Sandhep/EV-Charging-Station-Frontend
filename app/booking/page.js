@@ -1,10 +1,13 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
+import AlertDialog from '../components/AlertDialog';
 
 export default function Booking() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [bookingData, setBookingData] = useState({
     date: '',
     time: '',
@@ -16,6 +19,17 @@ export default function Booking() {
     power: '',
     type: ''
   });
+
+  const [alertDialog, setAlertDialog] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+  });
+
+  const [showPayment, setShowPayment] = useState(false);
+  const [paymentStatus, setPaymentStatus] = useState('pending'); // pending, processing, completed, failed
+  const BOOKING_CHARGE = 5.00; // $5 booking charge
 
   useEffect(() => {
     const stationId = searchParams.get('stationId');
@@ -36,12 +50,37 @@ export default function Booking() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setShowPayment(true);
+  };
+
+  const handlePayment = async () => {
     try {
-      // Add API call here to submit booking
-      console.log('Booking submitted:', bookingData);
-      alert('Booking successful!');
+      setPaymentStatus('processing');
+      // Simulate payment processing
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      setPaymentStatus('completed');
+      
+      // Generate booking ID
+      const bookingId = Math.random().toString(36).substr(2, 9).toUpperCase();
+      
+      // Show success alert after payment
+      setShowPayment(false);
+      setAlertDialog({
+        isOpen: true,
+        title: 'Booking Confirmed',
+        message: `Your charging slot has been booked for ${bookingData.date} at ${bookingData.time} for ${bookingData.duration} minutes. Booking ID: ${bookingId}`,
+        onConfirm: () => {
+          setAlertDialog(prev => ({ ...prev, isOpen: false }));
+          // Redirect to mybookings page
+          router.push('/mybookings');
+        },
+        confirmText: 'View Booking',
+        confirmButtonClass: 'bg-green-600 hover:bg-green-700',
+        icon: 'success'
+      });
     } catch (error) {
-      alert('Failed to book slot. Please try again.');
+      setPaymentStatus('failed');
+      console.error('Payment failed:', error);
     }
   };
 
@@ -63,6 +102,99 @@ export default function Booking() {
           <div className="space-y-1.5">
             <p className="text-sm text-gray-500">Charger Type</p>
             <p className="font-medium text-gray-900">{bookingData.type}</p>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const PaymentModal = () => {
+    if (!showPayment) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl">
+          <div className="text-center mb-6">
+            <h3 className="text-2xl font-bold text-gray-900">Confirm Booking</h3>
+            <p className="text-sm text-gray-500 mt-1">Complete payment to confirm your booking</p>
+          </div>
+
+          <div className="space-y-4">
+            {/* Booking Summary */}
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <h4 className="font-medium text-gray-900 mb-3">Booking Details</h4>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Date:</span>
+                  <span className="font-medium">{bookingData.date}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Time:</span>
+                  <span className="font-medium">{bookingData.time}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Duration:</span>
+                  <span className="font-medium">{bookingData.duration} minutes</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Station:</span>
+                  <span className="font-medium">{bookingData.stationName}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Payment Amount */}
+            <div className="border-t border-gray-200 pt-4">
+              <div className="flex justify-between items-center">
+                <p className="text-lg font-bold text-gray-900">Booking Charge</p>
+                <p className="text-2xl font-bold text-gray-900">${BOOKING_CHARGE.toFixed(2)}</p>
+              </div>
+              
+            </div>
+
+            {/* Payment Status */}
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-medium text-gray-900">Payment Status</p>
+              <div className="flex items-center space-x-2">
+                <div className={`h-2.5 w-2.5 rounded-full ${
+                  paymentStatus === 'completed' ? 'bg-green-500' :
+                  paymentStatus === 'processing' ? 'bg-yellow-500 animate-pulse' :
+                  paymentStatus === 'failed' ? 'bg-red-500' :
+                  'bg-gray-400'
+                }`} />
+                <span className="text-sm font-medium capitalize text-gray-700">
+                  {paymentStatus}
+                </span>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex space-x-3 mt-6">
+              <button
+                onClick={() => setShowPayment(false)}
+                className="flex-1 h-11 px-4 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors duration-200"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handlePayment}
+                disabled={paymentStatus === 'processing' || paymentStatus === 'completed'}
+                className={`flex-1 h-11 px-4 font-medium rounded-lg transition-colors duration-200
+                  ${paymentStatus === 'processing' || paymentStatus === 'completed'
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-green-600 hover:bg-green-700 text-white'
+                  }`}
+              >
+                {paymentStatus === 'processing' ? (
+                  <div className="flex items-center justify-center space-x-2">
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span>Processing...</span>
+                  </div>
+                ) : (
+                  `Pay $${BOOKING_CHARGE.toFixed(2)}`
+                )}
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -185,9 +317,18 @@ export default function Booking() {
           </div>
         </section>
       </main>
-      <footer className="py-6 w-full flex justify-center border-t border-gray-200 bg-white">
-        <p className="text-sm text-gray-600">© 2024 EV Charge. All rights reserved.</p>
-      </footer>
+      <Footer />
+      <PaymentModal />
+      <AlertDialog
+        isOpen={alertDialog.isOpen}
+        title={alertDialog.title}
+        message={alertDialog.message}
+        onConfirm={alertDialog.onConfirm}
+        onClose={() => setAlertDialog(prev => ({ ...prev, isOpen: false }))}
+        confirmText={alertDialog.confirmText}
+        confirmButtonClass={alertDialog.confirmButtonClass}
+        icon={alertDialog.icon}
+      />
     </div>
   );
 }

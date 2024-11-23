@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Navbar from '../components/Navbar';
 import ChargingReceipt from '../components/ChargingReceipt';
+import AlertDialog from '../components/AlertDialog';
+import Footer from '../components/Footer';
 
 export default function ConnectToCharger() {
   const searchParams = useSearchParams();
@@ -31,6 +33,13 @@ export default function ConnectToCharger() {
   });
 
   const [paymentStatus, setPaymentStatus] = useState('pending'); // pending, processing, completed, failed
+
+  const [alertDialog, setAlertDialog] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+  });
 
   // Rate per kWh (you can move this to an environment variable or API)
   const RATE_PER_KWH = 0.30; // $0.30 per kWh
@@ -78,12 +87,42 @@ export default function ConnectToCharger() {
   };
 
   const handleDisconnect = () => {
-    setConnectionStatus('disconnected');
-    setChargingData({
-      duration: '0',
-      energyConsumed: '0',
-      chargingSpeed: '0'
-    });
+    if (chargingStatus === 'charging') {
+      setAlertDialog({
+        isOpen: true,
+        title: 'Confirm Disconnection',
+        message: 'Disconnecting while charging will end your session and generate a bill. Are you sure you want to continue?',
+        onConfirm: async () => {
+          try {
+            setAlertDialog(prev => ({ ...prev, isOpen: false }));
+            
+            if (chargingStatus === 'charging') {
+              setChargingStatus('stopping');
+              await new Promise(resolve => setTimeout(resolve, 1500));
+              calculateBill(chargingData.energyConsumed, chargingData.duration);
+            }
+            
+            setConnectionStatus('disconnected');
+            setChargingStatus('stopped');
+            setChargingData({
+              duration: '0',
+              energyConsumed: '0',
+              chargingSpeed: '0'
+            });
+          } catch (error) {
+            console.error('Failed to disconnect:', error);
+          }
+        },
+      });
+    } else {
+      setConnectionStatus('disconnected');
+      setChargingStatus('stopped');
+      setChargingData({
+        duration: '0',
+        energyConsumed: '0',
+        chargingSpeed: '0'
+      });
+    }
   };
 
   const startChargingSession = () => {
@@ -227,7 +266,7 @@ export default function ConnectToCharger() {
     };
 
     return (
-      <div className="flex items-center font-medium text-gray-900">
+      <div className="px-12 flex items-center font-medium text-gray-900">
         <div className={`h-2.5 w-2.5 rounded-full ${statusColors[connectionStatus]} ${
           connectionStatus === 'connecting' ? 'animate-pulse' : ''
         }`} />
@@ -434,12 +473,17 @@ export default function ConnectToCharger() {
           </div>
         </section>
       </main>
-      <footer className="py-6 w-full flex justify-center border-t border-gray-200 bg-white">
-        <p className="text-sm text-gray-600">© 2024 EV Charge. All rights reserved.</p>
-      </footer>
-      
-      {/* Add the BillingSummary component at the root level */}
+      <Footer />
       <BillingSummary />
+      <AlertDialog
+        isOpen={alertDialog.isOpen}
+        title={alertDialog.title}
+        message={alertDialog.message}
+        onConfirm={alertDialog.onConfirm}
+        onClose={() => setAlertDialog(prev => ({ ...prev, isOpen: false }))}
+        confirmText="Disconnect"
+        icon="warning"
+      />
     </div>
   );
 }

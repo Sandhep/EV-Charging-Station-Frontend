@@ -1,6 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 
 const ProfilePage = () => {
   const [activeTab, setActiveTab] = useState('personal');
@@ -209,6 +210,7 @@ const ProfilePage = () => {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

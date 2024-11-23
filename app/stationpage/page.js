@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import Navbar from '../components/Navbar';
 import { useRouter } from 'next/navigation';
+import Footer from '../components/Footer';
 
 const stationData = [
   {
@@ -208,12 +209,7 @@ function StationPage() {
           </div>
         )}
       </main>
-      
-      <footer className="py-6 border-t border-gray-200">
-        <div className="container mx-auto px-4 text-center">
-          <p className="text-sm text-gray-600">© 2024 EV Charge. All rights reserved.</p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

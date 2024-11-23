@@ -6,6 +6,7 @@ import Cookies from "js-cookie";
 import { loginUser } from "../api";
 import Navbar from "../components/Navbar";
 
+
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -58,7 +59,7 @@ export default function Login() {
       <Navbar hideAuth={true} />
       <div className="flex items-center justify-center flex-1">
         <div className="bg-white shadow-lg rounded-lg p-6 sm:p-8 w-full max-w-sm sm:max-w-md border border-gray-200">
-          <h1 className="text-xl sm:text-2xl font-bold text-center mb-6 text-gray-900">
+          <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl text-gray-900 mb-6 text-center">
             Login
           </h1>
           <form onSubmit={handleLogin} className="space-y-4 sm:space-y-6">

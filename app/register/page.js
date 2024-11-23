@@ -66,7 +66,7 @@ export default function SignUp() {
       <Navbar hideAuth={true} />
       <div className="flex items-center justify-center flex-1 px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white shadow-lg rounded-lg p-6 sm:p-8 w-full max-w-sm sm:max-w-md border border-gray-200">
-          <h1 className="text-xl sm:text-2xl font-bold text-center text-gray-900 mb-6">
+          <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl text-gray-900 mb-6 text-center">
             Create Your Account
           </h1>
           <form onSubmit={handleSignUp} className="space-y-4 sm:space-y-6">
