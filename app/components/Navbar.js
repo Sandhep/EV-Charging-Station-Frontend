@@ -26,7 +26,7 @@ export default function Navbar({ hideAuth = false }) {
             About
           </Link>
           <Link className="text-sm font-medium text-gray-700 hover:underline underline-offset-4" href="#">
-            Careers
+            Contact Us
           </Link>
         </div>
       </div>
