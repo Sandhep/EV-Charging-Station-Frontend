@@ -12,7 +12,7 @@ const StationCard = ({ station }) => {
 
   const handleBooking = () => {
     router.push(
-      `/booking?stationId=${station.id}&stationName=${encodeURIComponent(station.name)}&power=${encodeURIComponent(station.power)}&type=${station.type}`
+      `/booking?stationId=${station.stationId}&chargerId=${station.id}&stationName=${encodeURIComponent(station.name)}&power=${encodeURIComponent(station.power)}&type=${station.type}`
     );
   };
 
@@ -86,7 +86,12 @@ const StationCard = ({ station }) => {
       <div className="mt-auto grid grid-cols-2 gap-3">
         <button
           onClick={handleBooking}
-          className="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors duration-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2"
+          className={`px-4 py-2 rounded-lg transition-colors duration-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 ${
+            station.availability === 'Available'
+              ? 'bg-gray-900 text-white hover:bg-gray-800'
+              : 'bg-gray-100 text-gray-400 cursor-not-allowed border-2 border-gray-200'
+          }`}
+          disabled={station.availability !== 'Available'}
         >
           Book
         </button>
@@ -102,6 +107,7 @@ const StationCard = ({ station }) => {
           Connect
         </button>
       </div>
+
     </div>
   );
 };
@@ -121,6 +127,7 @@ const StationPage = () => {
       );
       const stations = response.data.map((station) => ({
         id: station.ChargerID,
+        stationId:station.Station.StationID,
         name: station.Station.Name,
         address: station.Station.Address,
         location: station.Station.Location,

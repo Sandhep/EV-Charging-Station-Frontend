@@ -1,10 +1,13 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import AlertDialog from '../components/AlertDialog';
 import LoadingOverlay from '../components/LoadingOverlay';
 import ChargingReceipt from '../components/ChargingReceipt';
+import axios from 'axios';
+import Cookies from 'js-cookie';
+import { useRouter } from 'next/navigation';
 
 export default function MyBookings() {
   const [activeTab, setActiveTab] = useState('upcoming');
@@ -17,66 +20,34 @@ export default function MyBookings() {
     onConfirm: () => {},
   });
   const RATE_PER_KWH = 0.30;
+  const [bookings, setBookings] = useState([]);
 
-  // Updated mock data to include cancelled bookings
-  const mockBookings = {
-    upcoming: [
-      {
-        id: 'BK123456',
-        stationName: 'EV Station Downtown',
-        date: '2024-03-25',
-        time: '14:30',
-        duration: '60',
-        status: 'confirmed',
-        chargerType: 'Type 2',
-        vehicleModel: 'Tesla Model 3',
-        bookingCharge: 5.00,
-        power: '7.4kW'
-      }
-    ],
-    past: [
-      {
-        id: 'BK789012',
-        stationName: 'EV Station Mall',
-        date: '2024-03-20',
-        time: '10:00',
-        duration: '30',
-        status: 'completed',
-        chargerType: 'CCS',
-        vehicleModel: 'Tesla Model 3',
-        bookingCharge: 5.00,
-        chargingCost: 15.50,
-        energyConsumed: '25.5',
-        power: '50kW'
-      }
-    ],
-    cancelled: [
-      {
-        id: 'BK789014',
-        stationName: 'EV Station Central',
-        date: '2024-03-18',
-        time: '13:30',
-        duration: '45',
-        status: 'cancelled',
-        chargerType: 'Type 2',
-        vehicleModel: 'Tesla Model 3',
-        bookingCharge: 5.00,
-        power: '7.4kW',
-        cancellationDate: '2024-03-17T15:30:00',
-        refundStatus: 'completed'
-      }
-    ]
+  // Fetch Bookings
+  const fetchBookings = async () => {
+    try {
+      const authToken = Cookies.get('auth_token');
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/mybookings`, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+      setBookings(response.data.message);
+    } catch (error) {
+      console.error('Error fetching bookings:', error);
+    }
   };
 
-  // Add helper function for refund status badge
-  const getRefundStatusBadge = (status) => {
-    const statusConfig = {
-      completed: 'bg-green-100 text-green-800',
-      pending: 'bg-yellow-100 text-yellow-800',
-      failed: 'bg-red-100 text-red-800'
-    };
-    return statusConfig[status] || 'bg-gray-100 text-gray-800';
-  };
+  useEffect(() => {
+    fetchBookings();
+  }, []);
+
+  // Filter bookings based on active tab
+  const filteredBookings = bookings.filter(booking => {
+    if (activeTab === 'upcoming') return booking.Status === 'Booked';
+    if (activeTab === 'past') return booking.Status === 'Completed';
+    if (activeTab === 'cancelled') return booking.Status === 'Cancelled';
+    return false;
+  });
 
   const handleCancelBooking = (bookingId) => {
     setAlertDialog({
@@ -87,15 +58,28 @@ export default function MyBookings() {
         try {
           setAlertDialog(prev => ({ ...prev, isOpen: false }));
           setIsLoading(true);
-          // Simulate API call
-          await new Promise(resolve => setTimeout(resolve, 2000));
-          
+          const authToken = Cookies.get('auth_token');
+
+          // Make PATCH request to cancel the booking
+          await axios.patch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/cancelbooking`, {
+            bookingData: {
+              BookingID: bookingId
+            }
+          }, {
+            headers: {
+              Authorization: `Bearer ${authToken}`
+            }
+          });
+
           setIsLoading(false);
           setAlertDialog({
             isOpen: true,
             title: 'Booking Cancelled',
             message: 'Your booking has been successfully cancelled. The booking charge will be refunded within 3-5 business days.',
-            onConfirm: () => setAlertDialog(prev => ({ ...prev, isOpen: false })),
+            onConfirm: () => {
+              setAlertDialog(prev => ({ ...prev, isOpen: false }));
+              window.location.reload();
+            },
             confirmText: 'OK',
             confirmButtonClass: 'bg-green-600 hover:bg-green-700',
             icon: 'success'
@@ -142,19 +126,16 @@ export default function MyBookings() {
   };
 
   const BookingCard = ({ booking, type }) => {
+    const router = useRouter();
     const isUpcoming = type === 'upcoming';
     const isCancelled = type === 'cancelled';
-    const bookingDate = new Date(`${booking.date}T${booking.time}`);
-    const formattedDate = bookingDate.toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-    const formattedTime = bookingDate.toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+
+
+    const handleConnect = () => {
+      router.push(
+        `/connect?stationId=${booking.stationId}&stationName=${encodeURIComponent(booking.stationName)}&power=${encodeURIComponent(booking.power)}&type=${booking.chargerType}`
+      );
+    };
 
     const getStatusColor = (status) => {
       const colors = {
@@ -190,11 +171,11 @@ export default function MyBookings() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-sm text-gray-500">Date</p>
-                <p className="font-medium text-gray-900">{formattedDate}</p>
+                <p className="font-medium text-gray-900">{booking.date}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500">Time</p>
-                <p className="font-medium text-gray-900">{formattedTime}</p>
+                <p className="font-medium text-gray-900">{booking.time}</p>
               </div>
             </div>
 
@@ -241,37 +222,15 @@ export default function MyBookings() {
                 </div>
               </div>
             )}
-
-            {/* Cancellation Details */}
-            {isCancelled && (
-              <div className="border-t border-gray-200 pt-3 mt-3">
-                <div className="space-y-2">
-                  <div>
-                    <p className="text-sm text-gray-500">Cancelled On</p>
-                    <p className="font-medium text-gray-900">
-                      {new Date(booking.cancellationDate).toLocaleString()}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Refund Status</p>
-                    <span className={`inline-flex px-2.5 py-0.5 rounded-full text-sm font-medium ${getRefundStatusBadge(booking.refundStatus)}`}>
-                      {booking.refundStatus?.charAt(0).toUpperCase() + booking.refundStatus?.slice(1)}
-                    </span>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Refund Amount</p>
-                    <p className="font-medium text-gray-900">${formatCurrency(booking.bookingCharge)}</p>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Action Buttons */}
           {isUpcoming ? (
             <div className="mt-6 flex space-x-3">
-              <button className="flex-1 h-10 px-4 bg-gray-900 text-white font-medium rounded-lg hover:bg-gray-800 transition-colors duration-200">
-                View Details
+              <button  
+               onClick={handleConnect}
+               className="flex-1 h-10 px-4 bg-gray-900 text-white font-medium rounded-lg hover:bg-gray-800 transition-colors duration-200">
+                Connect
               </button>
               <button 
                 onClick={() => handleCancelBooking(booking.id)}
@@ -287,24 +246,7 @@ export default function MyBookings() {
             </div>
           ) : isCancelled ? (
             <div className="mt-6">
-              <button
-                className="w-full h-10 px-4 flex items-center justify-center space-x-2 font-medium rounded-lg bg-gray-50 text-gray-600 hover:bg-gray-100 transition-colors duration-200"
-              >
-                <svg 
-                  className="w-5 h-5" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  viewBox="0 0 24 24"
-                >
-                  <path 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round" 
-                    strokeWidth={2} 
-                    d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" 
-                  />
-                </svg>
-                <span>Contact Support</span>
-              </button>
+              {/* No action button for cancelled bookings */}
             </div>
           ) : (
             <div className="mt-6">
@@ -372,17 +314,28 @@ export default function MyBookings() {
 
           {/* Bookings Grid */}
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {mockBookings[activeTab].map((booking) => (
+            {filteredBookings.map((booking) => (
               <BookingCard 
-                key={booking.id} 
-                booking={booking} 
+                key={booking.BookingID} 
+                booking={{
+                  id: booking.BookingID,
+                  stationName: booking.Charger.Station.Name,
+                  stationId:booking.Charger.Station.StationID,
+                  date: new Date(booking.Date).toLocaleDateString(),
+                  time: booking.Time,
+                  duration: booking.Duration,
+                  status: booking.Status,
+                  chargerType: booking.Charger.Type,
+                  vehicleModel: `${booking.Vehicle.Make} ${booking.Vehicle.Model}`,
+                  power: `${booking.Charger.Capacity}kW`
+                }} 
                 type={activeTab}
               />
             ))}
           </div>
 
           {/* Empty State */}
-          {mockBookings[activeTab].length === 0 && (
+          {filteredBookings.length === 0 && (
             <div className="text-center py-12">
               <div className="inline-block p-3 bg-gray-100 rounded-full mb-4">
                 <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -4,16 +4,20 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import AlertDialog from '../components/AlertDialog';
+import axios from "axios";
+import Cookies from "js-cookie";
 
 export default function Booking() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const [vehicles,setvehicles] = useState([]);
   const [bookingData, setBookingData] = useState({
     date: '',
     time: '',
     duration: '30',
     vehicleModel: '',
-    chargerType: 'Type2',
+    vehicleId:'',
+    chargerId:'',
     stationId: '',
     stationName: '',
     power: '',
@@ -33,13 +37,39 @@ export default function Booking() {
 
   useEffect(() => {
     const stationId = searchParams.get('stationId');
+    const chargerId = searchParams.get('chargerId');
     const stationName = searchParams.get('stationName');
     const power = searchParams.get('power');
     const type = searchParams.get('type');
+    
+    const fetchuserVehicles = async () =>{
+
+      const token = Cookies.get("auth_token");
+      
+      try{
+        
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/getvehicles`,{
+          headers:{
+            Authorization:`Bearer ${token}`,
+          }
+        });
+        const vehicles = response.data.map((e)=>({
+             id:e.VehicleID,
+             model:`${e.Make} ${e.Model}`
+        }));
+        setvehicles(vehicles);
+      }catch(error){
+        console.error(error.message);
+      }
+
+    }
+
+    fetchuserVehicles();
 
     if (stationId) {
       setBookingData(prev => ({
         ...prev,
+        chargerId,
         stationId,
         stationName,
         power,
@@ -53,15 +83,48 @@ export default function Booking() {
     setShowPayment(true);
   };
 
+  async function book(bookingData) {
+
+    const token = Cookies.get("auth_token");
+
+    try {
+      const res = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/bookslot`,
+        {
+          bookingData: {
+            StationID: bookingData.stationId,
+            ChargerID: bookingData.chargerId,
+            VehicleID: bookingData.vehicleId,
+            Time: bookingData.time,
+            Duration: bookingData.duration,
+            Date: bookingData.date,
+          },
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return res;
+    } catch (error) {
+      console.error("Error booking slot:", error);
+      return {};
+    }    
+  }
+
+
   const handlePayment = async () => {
     try {
       setPaymentStatus('processing');
       // Simulate payment processing
+      const res = await book(bookingData);
+      console.log(res);
       await new Promise(resolve => setTimeout(resolve, 2000));
       setPaymentStatus('completed');
       
       // Generate booking ID
-      const bookingId = Math.random().toString(36).substr(2, 9).toUpperCase();
+      const bookingId = res.data.message.BookingID;
       
       // Show success alert after payment
       setShowPayment(false);
@@ -280,27 +343,30 @@ export default function Booking() {
 
                       <div className="space-y-2">
                         <label className="text-sm font-medium text-gray-900 block">Vehicle Model</label>
-                        <input
-                          type="text"
-                          className="flex h-11 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all duration-200"
-                          placeholder="Enter your vehicle model (e.g., Tesla Model 3)"
-                          value={bookingData.vehicleModel}
-                          onChange={(e) => setBookingData({...bookingData, vehicleModel: e.target.value})}
-                          required
-                        />
-                      </div>
+                          <select
+                            value={bookingData.vehicleId}
+                            onChange={(e) => {
+                              const selectedVehicle = vehicles.find(
+                                (vehicle) => vehicle.id === e.target.value
+                              );
+                              if (selectedVehicle) {
+                                setBookingData({
+                                  ...bookingData,
+                                  vehicleModel: selectedVehicle.model,
+                                  vehicleId: selectedVehicle.id,
+                                });
+                              }
+                            }}
+                            className="flex h-11 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all duration-200"
+                          >
+                            <option value="">Select your Vehicle</option>
+                            {vehicles.map((vehicle, index) => (
+                              <option key={vehicle.id} value={vehicle.id}>
+                                {vehicle.model}
+                              </option>
+                            ))}
+                          </select>
 
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-900 block">Charger Type</label>
-                        <select
-                          className="flex h-11 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all duration-200"
-                          value={bookingData.chargerType}
-                          onChange={(e) => setBookingData({...bookingData, chargerType: e.target.value})}
-                        >
-                          <option value="Type2">Type 2</option>
-                          <option value="CCS">CCS</option>
-                          <option value="CHAdeMO">CHAdeMO</option>
-                        </select>
                       </div>
 
                       <button
