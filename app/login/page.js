@@ -42,11 +42,7 @@ export default function Login() {
 
     try {
       const response = await loginUser({ email, password });
-      if (response.token) {
-        Cookies.set("auth_token", response.token, { expires: 7, path: "/" });
-      }
-      alert("Login successful!");
-      router.push("/dashboard");
+      router.push("/home");
     } catch (err) {
       setServerError("Invalid email or password. Please try again.");
     } finally {

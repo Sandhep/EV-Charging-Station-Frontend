@@ -1,10 +1,8 @@
 import axios from "axios";
 import Cookies from "js-cookie";  // Import js-cookie to manage cookies
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-
 const api = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: `${ process.env.NEXT_PUBLIC_API_BASE_URL}/api`,
   headers: {
     "Content-Type": "application/json",
   },
@@ -24,8 +22,7 @@ export const registerUser = async (userData) => {
 export const loginUser = async (credentials) => {
   try {
     const response = await api.post("/login", credentials);
-    
-    // If login is successful, store the token in the cookie
+  
     if (response.data.token) {
       Cookies.set("auth_token", response.data.token, { expires: 7, path: "/" }); // Store token for 7 days
     }
