@@ -5,11 +5,14 @@ import Navbar from '../components/Navbar';
 import ChargingReceipt from '../components/ChargingReceipt';
 import AlertDialog from '../components/AlertDialog';
 import Footer from '../components/Footer';
+import io from 'socket.io-client'; // Import Socket.IO client
 
 export default function ConnectToCharger() {
   const searchParams = useSearchParams();
   const [stationData, setStationData] = useState({
     stationId: '',
+    chargerId:'',
+    bookingId:'',
     stationName: '',
     power: '',
     type: ''
@@ -17,9 +20,8 @@ export default function ConnectToCharger() {
 
   const [connectionStatus, setConnectionStatus] = useState('disconnected'); // disconnected, connecting, connected, error
   const [chargingData, setChargingData] = useState({
-    duration: '0',
-    energyConsumed: '0',
-    chargingSpeed: '0'
+    progress: '0',
+    cost: '0',
   });
 
   const [chargingStatus, setChargingStatus] = useState('stopped'); // stopped, starting, charging, stopping
@@ -41,24 +43,17 @@ export default function ConnectToCharger() {
     onConfirm: () => {},
   });
 
+  const [sessionId, setSessionId] = useState(null); // Store session ID
+
+  const [socket, setSocket] = useState(null); // Store socket instance
+
   // Rate per kWh (you can move this to an environment variable or API)
   const RATE_PER_KWH = 0.30; // $0.30 per kWh
 
-  const calculateBill = (energy, duration) => {
-    const totalCost = (parseFloat(energy) * RATE_PER_KWH).toFixed(2);
-    const timestamp = new Date().toLocaleString();
-    
-    setBillData({
-      totalEnergy: energy,
-      duration: duration,
-      cost: totalCost,
-      timestamp: timestamp
-    });
-    setShowBill(true);
-  };
-
   useEffect(() => {
     const stationId = searchParams.get('stationId');
+    const chargerId = searchParams.get('chargerId');
+    const bookingId = searchParams.get('bookingId') || null;
     const stationName = searchParams.get('stationName');
     const power = searchParams.get('power');
     const type = searchParams.get('type');
@@ -66,6 +61,8 @@ export default function ConnectToCharger() {
     if (stationId) {
       setStationData({
         stationId,
+        chargerId,
+        bookingId,
         stationName,
         power,
         type
@@ -76,10 +73,15 @@ export default function ConnectToCharger() {
   const handleConnect = async () => {
     try {
       setConnectionStatus('connecting');
-      // Simulate connection delay
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      setConnectionStatus('connected');
-      startChargingSession();
+      // Initialize socket connection
+      const newSocket = io(process.env.NEXT_PUBLIC_API_BASE_URL); // Replace with your backend URL
+      setSocket(newSocket); // Store the socket instance
+
+      newSocket.on('connect', () => {
+        console.log(`Connected: ${newSocket.id}`);
+        setConnectionStatus('connected');
+      });
+
     } catch (error) {
       setConnectionStatus('error');
       console.error('Connection failed:', error);
@@ -87,68 +89,39 @@ export default function ConnectToCharger() {
   };
 
   const handleDisconnect = () => {
-    if (chargingStatus === 'charging') {
-      setAlertDialog({
-        isOpen: true,
-        title: 'Confirm Disconnection',
-        message: 'Disconnecting while charging will end your session and generate a bill. Are you sure you want to continue?',
-        onConfirm: async () => {
-          try {
-            setAlertDialog(prev => ({ ...prev, isOpen: false }));
-            
-            if (chargingStatus === 'charging') {
-              setChargingStatus('stopping');
-              await new Promise(resolve => setTimeout(resolve, 1500));
-              calculateBill(chargingData.energyConsumed, chargingData.duration);
-            }
-            
-            setConnectionStatus('disconnected');
-            setChargingStatus('stopped');
-            setChargingData({
-              duration: '0',
-              energyConsumed: '0',
-              chargingSpeed: '0'
-            });
-          } catch (error) {
-            console.error('Failed to disconnect:', error);
-          }
-        },
-      });
-    } else {
-      setConnectionStatus('disconnected');
-      setChargingStatus('stopped');
-      setChargingData({
-        duration: '0',
-        energyConsumed: '0',
-        chargingSpeed: '0'
-      });
+    if (socket) {
+      socket.disconnect(); // Disconnect the socket
+      console.log(`Disconnected: ${socket.id}`);
     }
-  };
-
-  const startChargingSession = () => {
-    // Simulate real-time charging data updates
-    const updateInterval = setInterval(() => {
-      if (connectionStatus === 'connected') {
-        setChargingData(prev => ({
-          duration: (parseFloat(prev.duration) + 1).toFixed(0),
-          energyConsumed: (parseFloat(prev.energyConsumed) + parseFloat(stationData.power) / 60).toFixed(2),
-          chargingSpeed: stationData.power
-        }));
-      } else {
-        clearInterval(updateInterval);
-      }
-    }, 1000);
-
-    return () => clearInterval(updateInterval);
+    setConnectionStatus('disconnected');
+    setChargingStatus('stopped');
+    setChargingData({
+      duration: '0',
+      energyConsumed: '0',
+      chargingSpeed: '0'
+    });
   };
 
   const handleStartCharging = async () => {
+
     try {
       setChargingStatus('starting');
-      // Simulate API call to start charging
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      setChargingStatus('charging');
-      startChargingSession();
+
+      const chargingData = {
+        ChargerID: stationData.chargerId,
+        BookingID: stationData.bookingId,
+        StationID: stationData.stationId,
+        Power: stationData.power,
+        Type: stationData.type
+      };
+
+      socket.emit('startCharging', chargingData); // Emit startCharging event
+
+      socket.on('chargingStarted', (data) => {
+        setSessionId(data.sessionId); // Store session ID from response
+        setChargingStatus('charging');
+      });
+
     } catch (error) {
       setChargingStatus('stopped');
       console.error('Failed to start charging:', error);
@@ -156,21 +129,36 @@ export default function ConnectToCharger() {
   };
 
   const handleStopCharging = async () => {
+    if (!sessionId) return; // Ensure sessionId is available
     try {
       setChargingStatus('stopping');
-      // Simulate API call to stop charging
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      setChargingStatus('stopped');
-      
-      // Calculate bill before resetting charging data
-      calculateBill(chargingData.energyConsumed, chargingData.duration);
-      
-      // Reset charging data
-      setChargingData({
-        duration: '0',
-        energyConsumed: '0',
-        chargingSpeed: '0'
+      const stopData = {
+        sessionId: sessionId,
+        ChargerID: stationData.chargerId
+      };
+
+      socket.emit('stopCharging', stopData); // Emit stopCharging event
+
+      socket.on('chargingStopped', (data) => {
+
+        setChargingStatus('stopped');
+
+        const timestamp = new Date().toLocaleString();
+    
+        setBillData({
+          totalEnergy: data.sessionDetails.progress,
+          duration: data.sessionDetails.progress,
+          cost: data.sessionDetails.cost,
+          timestamp: timestamp
+        });
+
+        setChargingData({ progress: '0', cost: '0'}); // Reset charging data
       });
+      
+      if(chargingStatus === 'stopped'){
+        setShowBill(true);
+      }
+      
     } catch (error) {
       setChargingStatus('charging');
       console.error('Failed to stop charging:', error);
@@ -386,6 +374,40 @@ export default function ConnectToCharger() {
     );
   };
 
+  // Clean up socket listeners on component unmount
+  useEffect(() => {
+    
+    if(socket) {
+
+    socket.on('chargingUpdate', (data) => {
+
+      setChargingData({
+        progress: data.progress,
+        cost: data.cost
+      });
+
+    });
+
+    socket.on('chargingCompleted',(data) =>{
+      setChargingData({
+        progress: data.progress,
+        cost: data.cost
+      });
+    });
+
+    }
+
+    return () => {
+      if (socket) {
+        socket.off('chargingStarted');
+        socket.off('chargingStopped');
+        socket.off('chargingUpdate');
+        socket.off('chargingCompleted');
+        socket.disconnect(); // Ensure socket is disconnected on unmount
+      }
+    };
+  }, [socket]);
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
       <Navbar />
@@ -434,16 +456,16 @@ export default function ConnectToCharger() {
                   {chargingStatus === 'charging' && (
                     <div className="mb-6 grid grid-cols-3 gap-4">
                       <div className="p-4 bg-gray-50 rounded-lg">
-                        <p className="text-sm text-gray-500 mb-1">Duration</p>
-                        <p className="text-xl font-bold text-gray-900">{chargingData.duration}s</p>
+                        <p className="text-sm text-gray-500 mb-1">Progress</p>
+                        <p className="text-xl font-bold text-gray-900">{chargingData.progress} % </p>
                       </div>
                       <div className="p-4 bg-gray-50 rounded-lg">
-                        <p className="text-sm text-gray-500 mb-1">Energy</p>
-                        <p className="text-xl font-bold text-gray-900">{chargingData.energyConsumed} kWh</p>
+                        <p className="text-sm text-gray-500 mb-1">Cost</p>
+                        <p className="text-xl font-bold text-gray-900">{chargingData.cost} $ </p>
                       </div>
                       <div className="p-4 bg-gray-50 rounded-lg">
                         <p className="text-sm text-gray-500 mb-1">Speed</p>
-                        <p className="text-xl font-bold text-gray-900">{chargingData.chargingSpeed} kW</p>
+                        <p className="text-xl font-bold text-gray-900">{stationData.power} kW</p>
                       </div>
                     </div>
                   )}
