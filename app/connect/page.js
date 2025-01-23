@@ -129,9 +129,13 @@ export default function ConnectToCharger() {
   };
 
   const handleStopCharging = async () => {
+
     if (!sessionId) return; // Ensure sessionId is available
+
     try {
+
       setChargingStatus('stopping');
+
       const stopData = {
         sessionId: sessionId,
         ChargerID: stationData.chargerId
@@ -152,15 +156,15 @@ export default function ConnectToCharger() {
           timestamp: timestamp
         });
 
-        setChargingData({ progress: '0', cost: '0'}); // Reset charging data
+        setTimeout(setShowBill(true),2000);
+
       });
       
-      if(chargingStatus === 'stopped'){
-        setShowBill(true);
-      }
       
     } catch (error) {
+
       setChargingStatus('charging');
+
       console.error('Failed to stop charging:', error);
     }
   };
@@ -389,10 +393,25 @@ export default function ConnectToCharger() {
     });
 
     socket.on('chargingCompleted',(data) =>{
+
       setChargingData({
-        progress: data.progress,
-        cost: data.cost
+        progress: data.sessionDetails.progress,
+        cost: data.sessionDetails.cost
       });
+
+      const timestamp = new Date().toLocaleString();
+    
+      setBillData({
+        totalEnergy: data.sessionDetails.progress,
+        duration: data.sessionDetails.progress,
+        cost: data.sessionDetails.cost,
+        timestamp: timestamp
+      });
+
+      setChargingStatus('stopped');
+
+      setTimeout(setShowBill(true),2000);
+
     });
 
     }
@@ -406,7 +425,7 @@ export default function ConnectToCharger() {
         socket.disconnect(); // Ensure socket is disconnected on unmount
       }
     };
-  }, [socket]);
+  }, [socket,setShowBill]);
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
