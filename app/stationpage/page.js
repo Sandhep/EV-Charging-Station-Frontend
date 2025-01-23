@@ -18,7 +18,7 @@ const StationCard = ({ station }) => {
 
   const handleConnect = () => {
     router.push(
-      `/connect?stationId=${station.id}&stationName=${encodeURIComponent(station.name)}&power=${encodeURIComponent(station.power)}&type=${station.type}`
+      `/connect?stationId=${station.stationId}&chargerId=${station.id}&stationName=${encodeURIComponent(station.name)}&power=${encodeURIComponent(station.power)}&type=${station.type}`
     );
   };
 
