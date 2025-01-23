@@ -133,7 +133,7 @@ export default function MyBookings() {
 
     const handleConnect = () => {
       router.push(
-        `/connect?stationId=${booking.stationId}&stationName=${encodeURIComponent(booking.stationName)}&power=${encodeURIComponent(booking.power)}&type=${booking.chargerType}`
+        `/connect?bookingId=${booking.id}&stationId=${booking.stationId}&chargerId=${booking.chargerId}&stationName=${encodeURIComponent(booking.stationName)}&power=${encodeURIComponent(booking.power)}&type=${booking.chargerType}`
       );
     };
 
@@ -321,13 +321,14 @@ export default function MyBookings() {
                   id: booking.BookingID,
                   stationName: booking.Charger.Station.Name,
                   stationId:booking.Charger.Station.StationID,
+                  chargerId:booking.ChargerID,
                   date: new Date(booking.Date).toLocaleDateString(),
                   time: booking.Time,
                   duration: booking.Duration,
                   status: booking.Status,
                   chargerType: booking.Charger.Type,
                   vehicleModel: `${booking.Vehicle.Make} ${booking.Vehicle.Model}`,
-                  power: `${booking.Charger.Capacity}kW`
+                  power: booking.Charger.Capacity
                 }} 
                 type={activeTab}
               />
