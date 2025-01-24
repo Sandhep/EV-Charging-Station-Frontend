@@ -6,6 +6,7 @@ import ChargingReceipt from '../components/ChargingReceipt';
 import AlertDialog from '../components/AlertDialog';
 import Footer from '../components/Footer';
 import io from 'socket.io-client'; // Import Socket.IO client
+import Cookies from 'js-cookie';
 
 export default function ConnectToCharger() {
   const searchParams = useSearchParams();
@@ -74,7 +75,14 @@ export default function ConnectToCharger() {
     try {
       setConnectionStatus('connecting');
       // Initialize socket connection
-      const newSocket = io(process.env.NEXT_PUBLIC_API_BASE_URL); // Replace with your backend URL
+      const authToken = Cookies.get('auth_token');
+
+      const newSocket = io(process.env.NEXT_PUBLIC_API_BASE_URL,{
+        auth: {
+          token: authToken, 
+        },
+      }); 
+      
       setSocket(newSocket); // Store the socket instance
 
       newSocket.on('connect', () => {
