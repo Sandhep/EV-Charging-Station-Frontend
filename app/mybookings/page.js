@@ -8,6 +8,8 @@ import ChargingReceipt from '../components/ChargingReceipt';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { useRouter } from 'next/navigation';
+import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
 
 export default function MyBookings() {
   const [activeTab, setActiveTab] = useState('upcoming');
@@ -21,6 +23,12 @@ export default function MyBookings() {
   });
   const RATE_PER_KWH = 0.30;
   const [bookings, setBookings] = useState([]);
+  
+  dayjs.extend(customParseFormat);
+
+  const convertTo12HourFormat = (time24) => {
+    return dayjs(time24, 'HH:mm').format('hh:mm A');
+  };
 
   // Fetch Bookings
   const fetchBookings = async () => {
@@ -175,7 +183,7 @@ export default function MyBookings() {
               </div>
               <div>
                 <p className="text-sm text-gray-500">Time</p>
-                <p className="font-medium text-gray-900">{booking.time}</p>
+                <p className="font-medium text-gray-900">{convertTo12HourFormat(booking.time)}</p>
               </div>
             </div>
 
