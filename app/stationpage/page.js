@@ -9,7 +9,6 @@ import axios from 'axios';
 // StationCard Component
 const StationCard = ({ station }) => {
   const router = useRouter();
-
   const handleBooking = () => {
     router.push(
       `/booking?stationId=${station.stationId}&chargerId=${station.id}&stationName=${encodeURIComponent(station.name)}&power=${encodeURIComponent(station.power)}&type=${station.type}`
@@ -118,6 +117,7 @@ const StationPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [locationData, setLocationData] = useState([]);
   const [filterType, setFilterType] = useState('all');
+  const[prompt,setprompt] = useState('No stations found. Try adjusting your search criteria.');
 
   // Fetch Data
   const fetchStations = async (location = '', type = '') => {
@@ -137,7 +137,7 @@ const StationPage = () => {
       }));
       return stations;
     } catch (error) {
-      console.error('Error fetching stations:', error);
+      setprompt(error.message);
       return [];
     }
   };
@@ -205,7 +205,7 @@ const StationPage = () => {
 
         {stationData.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-gray-600">No stations found. Try adjusting your search criteria.</p>
+            <p className="text-gray-600">{prompt}</p>
           </div>
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
