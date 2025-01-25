@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import { loginUser } from "../api";
@@ -14,6 +14,26 @@ export default function Login() {
   const [serverError, setServerError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
+  const [redirectPath, setRedirectPath] = useState("/"); // Default redirect path
+  const [queryParams, setQueryParams] = useState("");
+
+
+  useEffect(() => {
+    // Extract the `redirect` query parameter from the URL manually
+    const params = new URLSearchParams(window.location.search);
+
+    const redirect = params.get("next");
+    
+    params.delete("next");
+    
+    const queryString = new URLSearchParams(params).toString();
+
+    setRedirectPath(redirect || "/");
+
+    setQueryParams(queryString ? `?${queryString}` : "");
+  
+
+  }, []);
 
   const validateInputs = () => {
     const newErrors = {};
@@ -41,8 +61,8 @@ export default function Login() {
     setIsSubmitting(true);
 
     try {
-      const response = await loginUser({ email, password });
-      router.push("/home");
+      await loginUser({ email, password });
+      router.push(`${redirectPath}${queryParams}`);
     } catch (err) {
       setServerError("Invalid email or password. Please try again.");
     } finally {
