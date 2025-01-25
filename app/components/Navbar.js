@@ -95,7 +95,7 @@ export default function Navbar({ onLogout }) {
       </button>
 
       {isMounted && isAuthenticated ? (
-        <div className="relative" ref={userDropdownRef}>
+        <div className="hidden lg:block relative" ref={userDropdownRef}>
           <button
             onClick={toggleUserDropdown}
             className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-200 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
