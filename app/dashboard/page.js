@@ -16,11 +16,6 @@ export default function Dashboard() {
       try {
         const token = Cookies.get("auth_token"); // Get the token from cookies
 
-        if (!token) {
-          router.push("/login"); // Redirect to login if no token is found
-          return;
-        }
-
         // Fetch user profile data
         const data = await fetchUserProfile(token); // Pass token if required by the API
         setUserData(data); // Set the user data to state
@@ -38,7 +33,7 @@ export default function Dashboard() {
   // Logout functionality using js-cookie
   const handleLogout = () => {
     Cookies.remove("auth_token"); // Remove the auth token cookie
-    router.push("/login"); // Redirect the user to the login page
+    router.push("/"); // Redirect the user to the login page
   };
 
   // Show loading state while data is being fetched
