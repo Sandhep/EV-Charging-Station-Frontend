@@ -85,8 +85,6 @@ export default function Booking() {
 
   async function book(bookingData) {
 
-    const token = Cookies.get("auth_token");
-
     try {
       const res = await axios.post(
         `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/bookslot`,
@@ -102,7 +100,7 @@ export default function Booking() {
         },
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${user.token}`,
           },
         }
       );
@@ -117,9 +115,7 @@ export default function Booking() {
   const handlePayment = async () => {
     try {
       setPaymentStatus('processing');
-      // Simulate payment processing
       const res = await book(bookingData);
-      console.log(res);
       await new Promise(resolve => setTimeout(resolve, 2000));
       setPaymentStatus('completed');
       
