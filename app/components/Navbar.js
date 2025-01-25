@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { logoutUser } from "../api.js";
 import { Menu, X, Zap, User, LogOut } from "lucide-react";
 
-export default function Navbar({ onLogout }) {
+export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
@@ -216,7 +216,7 @@ export default function Navbar({ onLogout }) {
                 <button
                   onClick={() => {
                     closeMenu();
-                    onLogout();
+                    logoutUser(dispatch);
                   }}
                   className="py-2 text-sm font-medium text-gray-700 hover:text-gray-900 text-left"
                 >
