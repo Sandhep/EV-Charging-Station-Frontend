@@ -7,12 +7,21 @@ import { logoutUser } from "../api.js";
 import { Menu, X, Zap, User, LogOut } from "lucide-react";
 
 export default function Navbar({ onLogout }) {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const userDropdownRef = useRef(null);
 
   const isAuthenticated = useSelector((state) => state.auth.user);
   const dispatch = useDispatch();
+
+  const toggleMenu = useCallback(() => {
+    setIsMenuOpen((prev) => !prev);
+  }, []);
+
+  const closeMenu = useCallback(() => {
+    setIsMenuOpen(false);
+  }, []);
 
   const toggleUserDropdown = useCallback(() => {
     setIsUserDropdownOpen((prev) => !prev);
@@ -43,37 +52,49 @@ export default function Navbar({ onLogout }) {
           <span className="ml-2 text-2xl font-bold text-gray-900">EV Charge</span>
         </Link>
 
-        {!isAuthenticated && (
-          <nav className="hidden lg:flex items-center ml-8 space-x-6">
-            <Link
-              className="text-sm font-medium text-gray-700 hover:text-gray-900 hover:underline underline-offset-4"
-              href="/home#features"
-            >
-              Features
-            </Link>
-            <Link
-              className="text-sm font-medium text-gray-700 hover:text-gray-900 hover:underline underline-offset-4"
-              href="/stationpage"
-            >
-              Find Stations
-            </Link>
-            <Link
-              className="text-sm font-medium text-gray-700 hover:text-gray-900 hover:underline underline-offset-4"
-              href="#"
-            >
-              About
-            </Link>
-            <Link
-              className="text-sm font-medium text-gray-700 hover:text-gray-900 hover:underline underline-offset-4"
-              href="#"
-            >
-              Contact Us
-            </Link>
-          </nav>
-        )}
+        <nav className="hidden lg:flex items-center ml-8 space-x-6">
+          <Link
+            className="text-sm font-medium text-gray-700 hover:text-gray-900 hover:underline underline-offset-4"
+            href="/home#features"
+          >
+            Features
+          </Link>
+          <Link
+            className="text-sm font-medium text-gray-700 hover:text-gray-900 hover:underline underline-offset-4"
+            href="/stationpage"
+          >
+            Find Stations
+          </Link>
+          <Link
+            className="text-sm font-medium text-gray-700 hover:text-gray-900 hover:underline underline-offset-4"
+            href="#"
+          >
+            About
+          </Link>
+          <Link
+            className="text-sm font-medium text-gray-700 hover:text-gray-900 hover:underline underline-offset-4"
+            href="#"
+          >
+            Contact Us
+          </Link>
+        </nav>
       </div>
 
-      {isMounted && (
+      <button
+        className="lg:hidden"
+        onClick={toggleMenu}
+        aria-expanded={isMenuOpen}
+        aria-controls="mobile-menu"
+        aria-label="Toggle menu"
+      >
+        {isMenuOpen ? (
+          <X className="h-6 w-6 text-gray-900" aria-hidden="true" />
+        ) : (
+          <Menu className="h-6 w-6 text-gray-900" aria-hidden="true" />
+        )}
+      </button>
+
+      {isMounted && isAuthenticated ? (
         <div className="relative" ref={userDropdownRef}>
           <button
             onClick={toggleUserDropdown}
@@ -83,82 +104,144 @@ export default function Navbar({ onLogout }) {
           >
             <User className="h-6 w-6 text-gray-600" aria-hidden="true" />
           </button>
-
           {isUserDropdownOpen && (
             <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5 focus:outline-none">
-              {isAuthenticated ? (
-                <>
-                  <Link
-                    href="/profile"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    Profile
-                  </Link>
-                  <Link
-                    href="/mybookings"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    My Bookings
-                  </Link>
-                  <Link
-                    href="/payment-history"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    Payment History
-                  </Link>
-                  <Link
-                    href="/home#features"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    Features
-                  </Link>
-                  <Link
-                    href="/stationpage"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    Find Stations
-                  </Link>
-                  <Link
-                    href="#"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    About
-                  </Link>
-                  <Link
-                    href="#"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    Contact Us
-                  </Link>
-                  <button
-                    onClick={() => {
-                      setIsUserDropdownOpen(false);
-                      logoutUser(dispatch);
-                    }}
-                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    <LogOut className="inline-block w-4 h-4 mr-2" aria-hidden="true" />
-                    Logout
-                  </button>
-                </>
-              ) : (
-                <>
-                  <Link
-                    href="/login"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    Login
-                  </Link>
-                  <Link
-                    href="/register"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    Register
-                  </Link>
-                </>
-              )}
+              <Link
+                href="/profile"
+                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                onClick={() => setIsUserDropdownOpen(false)}
+              >
+                Profile
+              </Link>
+              <Link
+                href="/mybookings"
+                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                onClick={() => setIsUserDropdownOpen(false)}
+              >
+                My Bookings
+              </Link>
+              <Link
+                href="/payment-history"
+                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                onClick={() => setIsUserDropdownOpen(false)}
+              >
+                Payment History
+              </Link>
+              <button
+                onClick={() => {
+                  setIsUserDropdownOpen(false);
+                  logoutUser(dispatch);
+                }}
+                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              >
+                <LogOut className="inline-block w-4 h-4 mr-2" aria-hidden="true" />
+                Logout
+              </button>
             </div>
           )}
+        </div>
+      ) : (
+        isMounted && (
+          <div className="hidden lg:flex items-center ml-auto space-x-4">
+            <Link
+              href="/login"
+              className="text-sm font-medium bg-gray-900 text-white px-4 py-2 rounded-md hover:bg-gray-800 transition-colors"
+            >
+              Login
+            </Link>
+            <Link
+              href="/register"
+              className="text-sm font-medium border border-gray-900 text-gray-900 px-4 py-2 rounded-md hover:bg-gray-100 transition-colors"
+            >
+              Register
+            </Link>
+          </div>
+        )
+      )}
+
+      {isMounted && isMenuOpen && (
+        <div id="mobile-menu" className="absolute top-14 left-0 right-0 bg-white border-b border-gray-200 lg:hidden">
+          <nav className="flex flex-col px-4 py-2">
+            <Link
+              className="py-2 text-sm font-medium text-gray-700 hover:text-gray-900"
+              href="#features"
+              onClick={closeMenu}
+            >
+              Features
+            </Link>
+            <Link
+              className="py-2 text-sm font-medium text-gray-700 hover:text-gray-900"
+              href="/stationpage"
+              onClick={closeMenu}
+            >
+              Find Stations
+            </Link>
+            <Link
+              className="py-2 text-sm font-medium text-gray-700 hover:text-gray-900"
+              href="#"
+              onClick={closeMenu}
+            >
+              About
+            </Link>
+            <Link
+              className="py-2 text-sm font-medium text-gray-700 hover:text-gray-900"
+              href="#"
+              onClick={closeMenu}
+            >
+              Contact Us
+            </Link>
+            {isAuthenticated ? (
+              <>
+                <Link
+                  href="/profile"
+                  className="py-2 text-sm font-medium text-gray-700 hover:text-gray-900"
+                  onClick={closeMenu}
+                >
+                  Profile
+                </Link>
+                <Link
+                  href="/mybookings"
+                  className="py-2 text-sm font-medium text-gray-700 hover:text-gray-900"
+                  onClick={closeMenu}
+                >
+                  My Bookings
+                </Link>
+                <Link
+                  href="/payment-history"
+                  className="py-2 text-sm font-medium text-gray-700 hover:text-gray-900"
+                  onClick={closeMenu}
+                >
+                  Payment History
+                </Link>
+                <button
+                  onClick={() => {
+                    closeMenu();
+                    onLogout();
+                  }}
+                  className="py-2 text-sm font-medium text-gray-700 hover:text-gray-900 text-left"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <div className="flex flex-col space-y-2 pt-2 border-t border-gray-200 mt-2">
+                <Link
+                  href="/login"
+                  className="text-sm font-medium bg-gray-900 text-white px-4 py-2 rounded-md hover:bg-gray-800 transition-colors text-center"
+                  onClick={closeMenu}
+                >
+                  Login
+                </Link>
+                <Link
+                  href="/register"
+                  className="text-sm font-medium border border-gray-900 text-gray-900 px-4 py-2 rounded-md hover:bg-gray-100 transition-colors text-center"
+                  onClick={closeMenu}
+                >
+                  Register
+                </Link>
+              </div>
+            )}
+          </nav>
         </div>
       )}
     </header>
