@@ -20,12 +20,16 @@ export const registerUser = async (userData) => {
 
 // Login User
 export const loginUser = async (credentials) => {
+  
   try {
     const response = await api.post("/login", credentials);
   
     if (response.data.token) {
+
       Cookies.set("auth_token", response.data.token, { expires: 7, path: "/" }); // Store token for 7 days
+
     }
+
     return response.data;
   } catch (error) {
     throw error.response?.data?.message || "Login failed.";
