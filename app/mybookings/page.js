@@ -6,13 +6,14 @@ import AlertDialog from '../components/AlertDialog';
 import LoadingOverlay from '../components/LoadingOverlay';
 import ChargingReceipt from '../components/ChargingReceipt';
 import axios from 'axios';
-import Cookies from 'js-cookie';
 import { useRouter } from 'next/navigation';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
+import {useSelector} from 'react-redux';
 
 export default function MyBookings() {
   const [activeTab, setActiveTab] = useState('upcoming');
+  const user = useSelector((state) => state.auth.user);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [alertDialog, setAlertDialog] = useState({
@@ -33,10 +34,9 @@ export default function MyBookings() {
   // Fetch Bookings
   const fetchBookings = async () => {
     try {
-      const authToken = Cookies.get('auth_token');
       const response = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/mybookings`, {
         headers: {
-          Authorization: `Bearer ${authToken}`,
+          Authorization: `Bearer ${user.token}`,
         },
       });
       setBookings(response.data.message);

@@ -6,10 +6,11 @@ import ChargingReceipt from '../components/ChargingReceipt';
 import AlertDialog from '../components/AlertDialog';
 import Footer from '../components/Footer';
 import io from 'socket.io-client'; // Import Socket.IO client
-import Cookies from 'js-cookie';
+import {useSelector} from 'react-redux';
 
 export default function ConnectToCharger() {
   const searchParams = useSearchParams();
+  const user = useSelector((state) => state.auth.user);
   const [stationData, setStationData] = useState({
     stationId: '',
     chargerId:'',
@@ -75,11 +76,10 @@ export default function ConnectToCharger() {
     try {
       setConnectionStatus('connecting');
       // Initialize socket connection
-      const authToken = Cookies.get('auth_token');
 
       const newSocket = io(process.env.NEXT_PUBLIC_API_BASE_URL,{
         auth: {
-          token: authToken, 
+          token: user.token, 
         },
       }); 
       

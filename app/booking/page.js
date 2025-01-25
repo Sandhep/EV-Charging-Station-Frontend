@@ -6,10 +6,12 @@ import Footer from '../components/Footer';
 import AlertDialog from '../components/AlertDialog';
 import axios from "axios";
 import Cookies from "js-cookie";
+import {useSelector} from "react-redux";
 
 export default function Booking() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const user = useSelector((state) => state.auth.user);
   const [vehicles,setvehicles] = useState([]);
   const [bookingData, setBookingData] = useState({
     date: '',
@@ -43,14 +45,12 @@ export default function Booking() {
     const type = searchParams.get('type');
     
     const fetchuserVehicles = async () =>{
-
-      const token = Cookies.get("auth_token");
       
       try{
         
         const response = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/getvehicles`,{
           headers:{
-            Authorization:`Bearer ${token}`,
+            Authorization:`Bearer ${user.token}`,
           }
         });
         const vehicles = response.data.map((e)=>({

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import { loginUser } from "../api";
 import Navbar from "../components/Navbar";
+import {useDispatch} from "react-redux";
 
 
 export default function Login() {
@@ -16,7 +17,8 @@ export default function Login() {
   const router = useRouter();
   const [redirectPath, setRedirectPath] = useState("/"); // Default redirect path
   const [queryParams, setQueryParams] = useState("");
-
+  
+  const dispatch = useDispatch();
 
   useEffect(() => {
     // Extract the `redirect` query parameter from the URL manually
@@ -61,7 +63,7 @@ export default function Login() {
     setIsSubmitting(true);
 
     try {
-      await loginUser({ email, password });
+      await loginUser({ email, password },dispatch);
       router.push(`${redirectPath}${queryParams}`);
     } catch (err) {
       setServerError("Invalid email or password. Please try again.");
