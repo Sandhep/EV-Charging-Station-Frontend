@@ -5,12 +5,14 @@ import Link from "next/link";
 import { useDispatch, useSelector } from "react-redux";
 import { logoutUser } from "../api.js";
 import { Menu, X, Zap, User, LogOut } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const userDropdownRef = useRef(null);
+  const router = useRouter();
 
   const isAuthenticated = useSelector((state) => state.auth.user);
   const dispatch = useDispatch();
@@ -131,6 +133,7 @@ export default function Navbar() {
                 onClick={() => {
                   setIsUserDropdownOpen(false);
                   logoutUser(dispatch);
+                  router.push("/"); // Redirect the user to the Home page
                 }}
                 className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
               >
