@@ -66,7 +66,6 @@ export default function MyBookings() {
         try {
           setAlertDialog(prev => ({ ...prev, isOpen: false }));
           setIsLoading(true);
-          const authToken = Cookies.get('auth_token');
 
           // Make PATCH request to cancel the booking
           await axios.patch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/cancelbooking`, {
@@ -75,7 +74,7 @@ export default function MyBookings() {
             }
           }, {
             headers: {
-              Authorization: `Bearer ${authToken}`
+              Authorization: `Bearer ${user.token}`
             }
           });
 
